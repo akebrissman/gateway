@@ -1,30 +1,56 @@
 from flask_restful import Resource, reqparse
+from typing import Tuple
 from models.firebase import FirebaseModel
 
 
-class Firebase(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('imsi', type=str, required=True, help="This field canot be left blank!")
-    parser.add_argument('token', type=str, required=True, help="This field canot be left blank!")
+class FirebaseId(Resource):
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('token', type=str, required=True, help="This field cannot be left blank!")
 
-    def get(self, imsi):
+    def get(self, imsi) -> Tuple[dict, int]:
         fb = FirebaseModel.find_by_imsi(imsi)
         if fb:
             return fb.json(), 200
 
         return {'message': "Firebase item for IMSI '{}' not found.".format(imsi)}, 404
 
-    def post(self):
-        """
-        Saves the imsi and token in a database.
+    def delete(self, imsi: str) -> Tuple[dict, int]:
+        fb = FirebaseModel.find_by_imsi(imsi)
+        if fb:
+            fb.delete_from_db()
+            return {'message': 'Firebase item deleted'}, 200
 
-        Returns:
-        200: Success
-        400: Already exist
-        500: Internal error
+        return {'message': 'Firebase item already deleted'}, 200
 
-        """
-        data = Firebase.parser.parse_args()
+    def put(self, imsi: str) -> Tuple[dict, int]:
+        data = self.parser.parse_args()
+        fb = FirebaseModel.find_by_imsi(imsi)
+
+        if fb is None:
+            fb = FirebaseModel(imsi=imsi, token=data['token'])
+        else:
+            fb.token = data['token']
+
+        try:
+            fb.save_to_db()
+        except:
+            return {"message": "An error occurred adding the Firebase item."}, 500
+
+        return fb.json(), 200
+
+
+class Firebase(Resource):
+    def __init__(self):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('imsi', type=str, required=True, help="This field cannot be left blank!")
+        self.parser.add_argument('token', type=str, required=True, help="This field cannot be left blank!")
+
+    def get(self) -> Tuple[dict, int]:
+        return {'items': [x.json() for x in FirebaseModel.find_all()]}, 200
+
+    def post(self) -> Tuple[dict, int]:
+        data = self.parser.parse_args()
         imsi = data['imsi']
 
         fb = None
@@ -43,32 +69,3 @@ class Firebase(Resource):
             return {"message": "An error occurred adding the Firebase item."}, 500
 
         return fb.json(), 201
-
-    def delete(self, imsi):
-        fb = FirebaseModel.find_by_imsi(imsi)
-        if fb:
-            fb.delete_from_db()
-            return {'message': 'Firebase item deleted'}, 200
-
-        return {'message': 'Firebase item not found'}, 404
-
-    def put(self, imsi):
-        data = Firebase.parser.parse_args()
-        fb = FirebaseModel.find_by_imsi(imsi)
-
-        if fb is None:
-            fb = FirebaseModel(imsi=imsi, token=data['token'])
-        else:
-            fb.token = data['token']
-
-        try:
-            fb.save_to_db()
-        except:
-            return {"message": "An error occurred adding the Firebase item."}, 500
-
-        return fb.json(), 200
-
-
-class FirebaseList(Resource):
-    def get(self):
-        return {'items': [x.json() for x in FirebaseModel.find_all()]}

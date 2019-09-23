@@ -8,8 +8,8 @@ class FirebaseModel(db.Model):
     token = db.Column(db.String(255))
 
     def __init__(self, imsi, token):
-        self.imsi = imsi
-        self.token = token
+        self.imsi: str = imsi
+        self.token: str = token
 
     def __repr__(self):
         return f"<FirebaseModel {self.imsi}, {self.token}>"
