@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restful import Api
-from resources.firebase import Firebase, FirebaseId
+from project.resources.firebase import Firebase, FirebaseId
 
 app = Flask(__name__)
 
@@ -22,7 +22,7 @@ api.add_resource(FirebaseId, '/firebase/<string:imsi>')
 api.add_resource(Firebase, '/firebase')
 
 if __name__ == '__main__':
-    from db import db
+    from project.db import db
     db.init_app(app)
 
     # app.run(port=5000)
