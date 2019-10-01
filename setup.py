@@ -4,7 +4,7 @@ setup(
     name='gateway',
     version='0.1',
     packages=['models', 'resources'],
-    url='https://github.com/akebrissman',
+    url='https://github.com/akebrissman/gateway/',
     license='MIT',
     author='Åke Brissman',
     author_email='ake.brissman@gmail.com',
