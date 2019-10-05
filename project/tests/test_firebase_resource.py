@@ -1,11 +1,11 @@
 import unittest
-import os
 from project.db import db
 from project.app import app
 
 TEST_DB = 'test.db'
 
-class FirebaseTestCase(unittest.TestCase):
+
+class FirebaseResourceTest(unittest.TestCase):
 
     def setUp(self):
         app.config['TESTING'] = True

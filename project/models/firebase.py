@@ -19,7 +19,7 @@ class FirebaseModel(db.Model):
         return f"FirebaseModel {self.imsi}, {self.token}"
 
     def json(self) -> Dict:
-        return {'id': self.id, 'imsi': self.imsi, 'token': self.token}
+        return {'imsi': self.imsi, 'token': self.token}
 
     def save_to_db(self):
         db.session.add(self)
