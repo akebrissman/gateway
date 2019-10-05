@@ -1,0 +1,131 @@
+{
+	"info": {
+		"_postman_id": "dde3ad4a-659d-463b-97d5-2267ca37720c",
+		"name": "Gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/firebase",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{local-host}}/firebases",
+					"host": [
+						"{{local-host}}"
+					],
+					"path": [
+						"firebases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/firebase/<imsi>",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{local-host}}/firebase/123456789012345",
+					"host": [
+						"{{local-host}}"
+					],
+					"path": [
+						"firebase",
+						"123456789012345"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/firebase/<imsi>",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{local-host}}/firebase/123456789012345",
+					"host": [
+						"{{local-host}}"
+					],
+					"path": [
+						"firebase",
+						"123456789012345"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/firebase/<imsi>",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\":\"Token 30\",\"imsi\":\"12345678901230\"\n}"
+				},
+				"url": {
+					"raw": "{{local-host}}/firebase/12345678901230",
+					"host": [
+						"{{local-host}}"
+					],
+					"path": [
+						"firebase",
+						"12345678901230"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/firebase",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"imsi\":\"123456789012345\",\n\t\"token\":\"fdsjflkdsjfkljdklsjfkldsjklfjdklsjfkljdsklfjdklsj\"\n}"
+				},
+				"url": {
+					"raw": "{{local-host}}/firebase",
+					"host": [
+						"{{local-host}}"
+					],
+					"path": [
+						"firebase"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
