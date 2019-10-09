@@ -1,16 +1,14 @@
 import unittest
-from project.models.firebase import FirebaseModel
-from project.db import db
-from project.app import app
+from models.firebase import FirebaseModel
+from project import db
+from project import create_app
 
-TEST_DB = 'test.db'
+flask_app = create_app('flask_test.cfg')
 
-app.config['DEBUG'] = True
-app.config['TESTING'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
-db.init_app(app)
+@flask_app.before_first_request
+def create_tables():
+    db.create_all()
 
 
 class FirebaseModelTest(unittest.TestCase):

@@ -9,7 +9,9 @@ setup(
     author='Åke Brissman',
     author_email='ake.brissman@gmail.com',
     description='Referense project for making a RESTful application',
-
+    tests_require=[
+        'pytest'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
@@ -21,6 +23,5 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Quality Assurance'
     ],
-
     python_requires='>=3.6'
 )
