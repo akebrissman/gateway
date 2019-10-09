@@ -1,6 +1,6 @@
 import unittest
-from project.db import db
-from project.app import app
+from db import db
+from app import app
 
 TEST_DB = 'test.db'
 
