@@ -1,14 +1,22 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='gateway',
     version='0.1',
-    packages=['models', 'resources'],
+    packages=['gateway'],
     url='https://github.com/akebrissman/gateway/',
     license='MIT',
     author='Åke Brissman',
     author_email='ake.brissman@gmail.com',
-    description='Referense project for making a RESTful application',
+    description='Reference project for making a RESTful application',
+    setup_requires=[
+        'pytest-runner'
+    ],
+    install_requires=[
+        'Flask',
+        'Flask-RESTful',
+        'Flask-SQLAlchemy'
+    ],
     tests_require=[
         'pytest'
     ],
