@@ -1,7 +1,8 @@
 import pytest
-from project import create_app
-from db import db
-from models import firebase
+
+from gateway import create_app
+from gateway import db
+from gateway.models import firebase
 
 
 @pytest.fixture(scope='module')
@@ -20,7 +21,10 @@ def test_client():
 
     ctx.pop()
 
+
 pytest.fixture(scope='module')
+
+
 def init_database():
     # Create the database and the database table
     db.create_all()

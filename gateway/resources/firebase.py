@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from typing import Tuple
-from models.firebase import FirebaseModel
+from ..models.firebase import FirebaseModel
 
 
 class FirebaseId(Resource):
