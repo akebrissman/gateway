@@ -1,4 +1,4 @@
-from ..db import db
+from gateway import db
 from typing import Dict, List
 
 
@@ -36,4 +36,3 @@ class FirebaseModel(db.Model):
     @classmethod
     def find_all(cls) -> List:
         return cls.query.all()
-

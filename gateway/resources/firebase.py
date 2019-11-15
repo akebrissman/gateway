@@ -34,7 +34,7 @@ class FirebaseId(Resource):
 
         try:
             fb.save_to_db()
-        except :
+        except:
             return {"message": "An error occurred adding the Firebase item."}, 500
 
         return fb.json(), 200
