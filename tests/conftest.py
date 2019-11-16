@@ -2,19 +2,20 @@ import pytest
 
 from gateway import create_app
 from gateway import db
-from gateway.models import firebase
+from gateway.models.firebase import FirebaseModel
 
 
 @pytest.fixture(scope='module')
 def test_client():
-    flask_app = create_app('flask_test.cfg')
+    # app = create_app('flask_test.cfg')
+    app = create_app('flask.cfg')
 
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    testing_client = flask_app.test_client()
+    testing_client = app.test_client()
 
     # Establish an application context before running the tests.
-    ctx = flask_app.app_context()
+    ctx = app.app_context()
     ctx.push()
 
     yield testing_client  # this is where the testing happens!
@@ -22,9 +23,7 @@ def test_client():
     ctx.pop()
 
 
-pytest.fixture(scope='module')
-
-
+@pytest.fixture(scope='module')
 def init_database():
     # Create the database and the database table
     db.create_all()
@@ -42,8 +41,16 @@ def init_database():
 
     db.drop_all()
 
+@pytest.fixture()
+def app():
+    app = create_app('flask-test.cfg')
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()  # looks like db.session.close() would work as well
+        db.drop_all()
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def new_fb():
-    fb = firebase('123456789012345', 'guid')
+    fb = FirebaseModel('123456789012345', 'guid')
     return fb
