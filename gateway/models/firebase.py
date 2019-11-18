@@ -1,5 +1,6 @@
-from gateway import db
 from typing import Dict, List
+
+from gateway import db
 
 
 class FirebaseModel(db.Model):
