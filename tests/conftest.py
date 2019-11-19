@@ -7,20 +7,34 @@ from gateway.models.firebase import FirebaseModel
 
 @pytest.fixture(scope='module')
 def test_client():
-    # app = create_app('flask_test.cfg')
-    app = create_app('flask.cfg')
+    app = create_app('flask_test.cfg')
 
-    # Flask provides a way to test your application by exposing the Werkzeug test Client
-    # and handling the context locals for you.
-    testing_client = app.test_client()
+    with app.app_context():
+        db.create_all()
+        yield app.test_client()  # this is where the testing happens!
+        db.session.remove()
+        db.drop_all()
 
-    # Establish an application context before running the tests.
-    ctx = app.app_context()
-    ctx.push()
 
-    yield testing_client  # this is where the testing happens!
+@pytest.fixture(scope='module')
+def test_client_no_db():
+    app = create_app('flask_test.cfg')
 
-    ctx.pop()
+    with app.app_context():
+        #db.create_all()
+        yield app.test_client()  # this is where the testing happens!
+        #db.session.remove()
+        #db.drop_all()
+
+
+@pytest.fixture()
+def app():
+    app = create_app('flask_test.cfg')
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
 
 
 @pytest.fixture(scope='module')
@@ -41,14 +55,6 @@ def init_database():
 
     db.drop_all()
 
-@pytest.fixture()
-def app():
-    app = create_app('flask-test.cfg')
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.session.remove()  # looks like db.session.close() would work as well
-        db.drop_all()
 
 @pytest.fixture()
 def new_fb():
