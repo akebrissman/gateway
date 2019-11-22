@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from gateway import create_app
 from gateway import db
 
