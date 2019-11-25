@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
-from .resources.firebase import Firebase, FirebaseId
+
 
 #######################
 #### Configuration ####
@@ -38,6 +38,7 @@ def initialize_extensions(app):
 def register_endpoints(app):
     # Since the application instance is now created, register each Endpoint
     # with the Flask application instance (app)
+    from gateway.resources.firebase import Firebase, FirebaseId
     api = Api(app)
     api.add_resource(FirebaseId, '/firebase/<string:imsi>')
     api.add_resource(Firebase, '/firebase')

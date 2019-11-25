@@ -1,5 +1,7 @@
-from flask_restful import Resource, reqparse
 from typing import Tuple
+
+from flask_restful import Resource, reqparse
+
 from ..models.firebase import FirebaseModel
 
 
@@ -34,7 +36,7 @@ class FirebaseId(Resource):
 
         try:
             fb.save_to_db()
-        except :
+        except:
             return {"message": "An error occurred adding the Firebase item."}, 500
 
         return fb.json(), 200
@@ -47,17 +49,16 @@ class Firebase(Resource):
         self.parser.add_argument('token', type=str, required=True, help="This field cannot be left blank!")
 
     def get(self) -> Tuple[dict, int]:
-        return {'items': [x.json() for x in FirebaseModel.find_all()]}, 200
+        try:
+            return {'items': [x.json() for x in FirebaseModel.find_all()]}, 200
+        except:
+            return {"message": "An error occurred adding the Firebase item."}, 500
 
     def post(self) -> Tuple[dict, int]:
         data = self.parser.parse_args()
         imsi = data['imsi']
 
-        fb = None
-        try:
-            fb = FirebaseModel.find_by_imsi(imsi)
-        except:
-            pass
+        fb = FirebaseModel.find_by_imsi(imsi)
 
         if fb:
             return {'message': "Firebase item for IMSI '{}' already exists.".format(imsi)}, 400

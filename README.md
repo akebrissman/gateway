@@ -32,3 +32,7 @@ Running the tests:
 
     python setup.py test
  
+Running the test with coverage
+
+    coverage run --source gateway setup.py test
+    coverage report -m

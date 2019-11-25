@@ -15,12 +15,12 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "{{local-host}}/firebases",
+					"raw": "{{local-host}}/firebase",
 					"host": [
 						"{{local-host}}"
 					],
 					"path": [
-						"firebases"
+						"firebase"
 					]
 				}
 			},

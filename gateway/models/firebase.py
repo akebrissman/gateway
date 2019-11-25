@@ -1,5 +1,6 @@
-from ..db import db
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+from gateway import db
 
 
 class FirebaseModel(db.Model):
@@ -30,10 +31,15 @@ class FirebaseModel(db.Model):
         db.session.commit()
 
     @classmethod
-    def find_by_imsi(cls, imsi: str) -> "FirebaseModel":
-        return cls.query.filter_by(imsi=imsi).first()
+    def find_by_imsi(cls, imsi: str) -> Optional["FirebaseModel"]:
+        try:
+            return cls.query.filter_by(imsi=imsi).first()
+        except:
+            return None
 
     @classmethod
-    def find_all(cls) -> List:
-        return cls.query.all()
-
+    def find_all(cls) -> Optional[List]:
+        try:
+            return cls.query.all()
+        except Exception:
+            return None
