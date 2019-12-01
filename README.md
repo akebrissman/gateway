@@ -1,3 +1,10 @@
+[![Build Status](https://travis-ci.org/akebrissman/gateway.svg?branch=master)](https://travis-ci.org/akebrissman/gateway)
+
+[![Build Status](https://travis-ci.org/akebrissman/gateway.svg?branch=develop)](https://travis-ci.org/akebrissman/gateway)
+   
+[![Build Status](https://travis-ci.org/akebrissman/gateway.svg?branch=embed-build-status-image)](https://travis-ci.org/akebrissman/gateway)
+
+
 # Project Title
 
 Gateway for Firebase notifications
