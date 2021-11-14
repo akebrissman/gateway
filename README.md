@@ -7,10 +7,9 @@ Gateway for Firebase notifications
 
 
 ### Installing
-Create a Python 3.6 virtual environment and install the packages:
+Create a Python 3.8 virtual environment and install the packages:
     
-    pip install virtualenv
-    virtualenv venv
+    python -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt
     pip install -e .

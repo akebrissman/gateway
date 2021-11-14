@@ -4,9 +4,9 @@ def test_new_user(new_fb):
     fb = new_fb
     assert fb.imsi == '123456789012345'
     assert fb.token == 'guid'
-    assert fb.__repr__() == f"<FirebaseModel {fb.imsi}, {fb.token}>"
-    assert fb.__str__() == f"FirebaseModel {fb.imsi}, {fb.token}"
-    assert str(fb) == f"FirebaseModel {fb.imsi}, {fb.token}"
+    assert fb.__repr__() == f"FirebaseModel(imsi={fb.imsi}, token={fb.token})"
+    assert fb.__str__() == f"Imsi:{fb.imsi}, Token:{fb.token}"
+    assert str(fb) == f"Imsi:{fb.imsi}, Token:{fb.token}"
 
     assert str(fb.json()) == f"{{'imsi': '{fb.imsi}', 'token': '{fb.token}'}}"
     # should be this for valid json syntax.

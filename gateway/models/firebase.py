@@ -1,5 +1,7 @@
 from typing import Dict, List, Optional
 
+from sqlalchemy import exc
+
 from gateway import db
 
 
@@ -14,10 +16,10 @@ class FirebaseModel(db.Model):
         self.token: str = token
 
     def __repr__(self) -> str:
-        return f"<FirebaseModel {self.imsi}, {self.token}>"
+        return f"{type(self).__name__}(imsi={self.imsi}, token={self.token})"
 
     def __str__(self) -> str:
-        return f"FirebaseModel {self.imsi}, {self.token}"
+        return f"Imsi:{self.imsi}, Token:{self.token}"
 
     def json(self) -> Dict:
         return {'imsi': self.imsi, 'token': self.token}
@@ -34,12 +36,12 @@ class FirebaseModel(db.Model):
     def find_by_imsi(cls, imsi: str) -> Optional["FirebaseModel"]:
         try:
             return cls.query.filter_by(imsi=imsi).first()
-        except:
+        except exc.SQLAlchemyError:
             return None
 
     @classmethod
     def find_all(cls) -> Optional[List]:
         try:
             return cls.query.all()
-        except Exception:
+        except exc.SQLAlchemyError:
             return None
