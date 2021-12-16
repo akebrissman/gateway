@@ -39,6 +39,12 @@ def register_endpoints(app):
     # Since the application instance is now created, register each Endpoint
     # with the Flask application instance (app)
     from gateway.resources.firebase import Firebase, FirebaseId
+    from gateway.resources.group import Group, GroupId
+    from gateway.resources.device import Device, DeviceId
     api = Api(app)
-    api.add_resource(FirebaseId, '/firebase/<string:imsi>')
-    api.add_resource(Firebase, '/firebase')
+    api.add_resource(FirebaseId, '/api/firebase/<string:imsi>')
+    api.add_resource(Firebase, '/api/firebase')
+    api.add_resource(GroupId, '/api/group/<string:group_name>')
+    api.add_resource(Group, '/api/group')
+    api.add_resource(DeviceId, '/api/device/<string:device_name>')
+    api.add_resource(Device, '/api/device')

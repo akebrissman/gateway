@@ -9,7 +9,7 @@ from ..models.firebase import FirebaseModel
 class FirebaseId(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('token', type=str, required=True, help="Is mandatory!")
+        self.parser.add_argument('token', type=str, required=True, location='json', help="Is mandatory!")
 
     def get(self, imsi: str) -> Tuple[dict, int]:
         fb = FirebaseModel.find_by_imsi(imsi)
@@ -52,7 +52,7 @@ class Firebase(Resource):
     def get(self) -> Tuple[dict, int]:
         try:
             return {'items': [x.json() for x in FirebaseModel.find_all()]}, 200
-        except exc.SQLAlchemyError:
+        except Exception as e:
             return {"message": "An error occurred getting the Firebase."}, 500
 
     def post(self) -> Tuple[dict, int]:

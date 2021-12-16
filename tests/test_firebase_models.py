@@ -13,7 +13,7 @@ def test_new_user(new_fb):
     # assert new_fb.json() == f"{{\"imsi\": \"{new_fb.imsi}\", \"token\": \"{new_fb.token}\"}}"
 
 
-def test_save_user(app):
+def test_save_fb(app):
     imsi = '123456789012345'
     token = 'ABC123'
     fb1 = FirebaseModel(imsi, token)
@@ -27,7 +27,7 @@ def test_save_user(app):
     for x in FirebaseModel.find_all():
         assert x.imsi == imsi
 
-def test_save_user_mulitple_times(app):
+def test_save_fb_mulitple_times(app):
     imsi = '123456789012345'
     token = 'ABC123'
     fb1 = FirebaseModel(imsi, token)
@@ -36,7 +36,7 @@ def test_save_user_mulitple_times(app):
     fb1.save_to_db()
     assert len(FirebaseModel.find_all()) == 1
 
-def test_delete_user(app):
+def test_delete_fb(app):
     imsi = '123456789012345'
     token = 'ABC123'
     fb1 = FirebaseModel(imsi, token)
@@ -46,7 +46,7 @@ def test_delete_user(app):
     fb1.delete_from_db()
     assert len(FirebaseModel.find_all()) == 0
 
-def test_find_user(app):
+def test_find_fb(app):
     imsi = '123456789012345'
     token = 'ABC123'
     fb1 = FirebaseModel(imsi, token)
