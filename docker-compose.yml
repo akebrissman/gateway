@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+
+  gateway_service:
+    container_name: gateway-service
+    hostname: gateway_service
+    image: abrissman/gateway-service:local-build
+    command: python /app/app.py
+    env_file: .env
+    ports:
+      - "5010:5010"
+    volumes:
+      - "./data:/app/data"
+      - "./instance:/app/instance"
+
+volumes:
+  gateway_service_sql_data_db:
