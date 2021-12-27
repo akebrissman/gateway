@@ -4,6 +4,7 @@ from flask_restful import Resource, reqparse
 from sqlalchemy import exc
 
 from ..models.group import GroupModel
+from utils.decorators import requires_auth
 
 
 class GroupId(Resource):
@@ -11,6 +12,7 @@ class GroupId(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('url', type=str, required=True, location='json', help="Is mandatory!")
 
+    @requires_auth
     def get(self, group_name: str) -> Tuple[dict, int]:
         group_model = GroupModel.find_by_name(group_name)
         if group_model:
@@ -18,6 +20,7 @@ class GroupId(Resource):
 
         return {'message': f"Group '{group_name}' not found."}, 404
 
+    @requires_auth
     def delete(self, group_name: str) -> Tuple[dict, int]:
         group_model = GroupModel.find_by_name(group_name)
         if group_model:
@@ -26,6 +29,7 @@ class GroupId(Resource):
 
         return {'message': 'Group already deleted'}, 200
 
+    @requires_auth
     def put(self, group_name: str) -> Tuple[dict, int]:
         data = self.parser.parse_args()
         group_model = GroupModel.find_by_name(group_name)
@@ -49,12 +53,14 @@ class Group(Resource):
         self.parser.add_argument('name', type=str, required=True, help="Is mandatory!")
         self.parser.add_argument('url', type=str, required=True, help="Is mandatory!")
 
+    @requires_auth
     def get(self) -> Tuple[dict, int]:
         try:
             return {'groups': [x.json() for x in GroupModel.find_all()]}, 200
         except Exception as e:
             return {"message": "An error occurred getting the Groups."}, 500
 
+    @requires_auth
     def post(self) -> Tuple[dict, int]:
         data = self.parser.parse_args()
         group_name = data['name']
