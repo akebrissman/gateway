@@ -1,14 +1,44 @@
 import pytest
+import os
+from datetime import datetime, timedelta
+from jose import jwt
 
 from gateway import create_app
 from gateway import db
 from gateway.models.firebase import FirebaseModel
 
 
+def read_file(file_name: str) -> str:
+    try:
+        f = open(file_name, "r")
+        data = f.read()
+        f.close()
+    except Exception as e:
+        data = ""
+    return data
+
+
 @pytest.fixture(scope='module')
 def test_client():
     app = create_app('flask_test.cfg')
-    app.bearer = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IllrUVJ5SUdqT2ROT0RnVFB1WXp1ViJ9.eyJpc3MiOiJodHRwczovL2Ficmlzc21hbi5ldS5hdXRoMC5jb20vIiwic3ViIjoicHlkNzU1eWdGVXJ5ZlNLbThEUjlXRWlFMzl1M1RwSXZAY2xpZW50cyIsImF1ZCI6Im15LXByb2plY3QtYXBpIiwiaWF0IjoxNjQwNDU2MDE3LCJleHAiOjE2NDA1NDI0MTcsImF6cCI6InB5ZDc1NXlnRlVyeWZTS204RFI5V0VpRTM5dTNUcEl2IiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.UNpa7xFg0hQc287LjHxwOlGKg-Z_ELfWA9b4Jg3XlLhWT_k2gSngWU6iA4DF3FOZvH_KKeTktqZmR4Wt5BsPURg3oRnWKa5tic6KBXgUIB_FB1xS0JH80B9iHqVPGYZfIVB0--qprzv0yDW-FOB4ccpbA9ceVzz6en4EjIof-jh7XtKnKi8AyobbNbFFUgyM-Oq17ScxZNdMQMQj3ZF95jMV1vAV8wgZhByp0lYLYeWPLNpVMBd6i-v8mqCYaZHNLl_-ZMquJkqms9czDMkLTETwO0P37W7HeE9fyq8IEDeZT9rjWjDp861s9lNarFN8uUKebdHiVfvh6eLZjZxvhA"
+    claims = {'iss': 'https://abrissman.auth.com/',
+              'sub': '123456789',
+              'aud': 'my-gateway-api',
+              'iat': datetime.utcnow(),
+              'exp': datetime.utcnow() + timedelta(seconds=10),
+              'scope': 'read:group write:group'}
+    headers = {"kid": "123456789"}
+
+    # TODO: Must be a better way to find the path to the file
+    if os.getcwd().find('tests') >= 0:
+        # Started from the IDE
+        key = read_file("jwtRS256.key")
+    else:
+        # Started from the Terminal
+        key = read_file("tests/jwtRS256.key")
+
+    token = jwt.encode(claims=claims, key=key, algorithm='RS256', headers=headers)
+    app.bearer = f"Bearer {token}"
 
     with app.app_context():
         db.create_all()

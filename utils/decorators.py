@@ -13,7 +13,7 @@ if ENV_FILE:
 
 config = {
     "DOMAIN": os.getenv("AUTH_DOMAIN", "your.domain.com"),
-    "API_AUDIENCE": os.getenv("AUTH_API_AUDIENCE", "your.audience.com"),
+    "AUDIENCE": os.getenv("AUTH_API_AUDIENCE", "your.audience.com"),
     "ALGORITHMS": os.getenv("AUTH_ALGORITHMS", "RS256"),
 }
 
@@ -65,7 +65,7 @@ def get_token() -> str:
     return authorization_header_parts[1]
 
 
-def validate_token(token: str):
+def validate_token(token: str, scope: str = None):
     """Validates an Access Token"""
 
     rsa_key = None
@@ -76,7 +76,10 @@ def validate_token(token: str):
         jsonurl = urlopen("https://" + config["DOMAIN"] + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
     else:
-        rsa_key = json.loads(public_key)
+        if public_key[:1] == "{":
+            rsa_key = json.loads(public_key)
+        else:
+            rsa_key = public_key
 
     # We will parse the token and get the header for later use
     unverified_header = jwt.get_unverified_header(token)
@@ -103,9 +106,19 @@ def validate_token(token: str):
                 token,
                 rsa_key,
                 algorithms=config["ALGORITHMS"],
-                audience=config["API_AUDIENCE"],
+                audience=config["AUDIENCE"],
                 issuer="https://" + config["DOMAIN"] + "/",
             )
+
+            # Verify that the requested scope exist in the token
+            token_scope = payload.get('scope').split(' ')
+            if scope and scope not in token_scope:
+                payload = {
+                    "code": "missing_scope",
+                    "description": "No matching scope found in token"
+                }
+                raise AuthError(payload, 401)
+
             _request_ctx_stack.top.current_user = payload
 
         # The token is not valid if the expiry date is in the past
@@ -172,3 +185,26 @@ def requires_auth(f):
         return f(*args, **kwargs)
 
     return decorated
+
+
+def requires_auth_with_scope(scope: str = None):
+    def inner_decorator(f):
+        def wrapped(*args, **kwargs):
+            try:
+                # Lets get the access token from the Authorization header
+                token = get_token()
+
+                # Once we have the token, we can validate it
+                validate_token(token, scope)
+            except AuthError as error:
+                # Abort the request if something went wrong fetching the token
+                # or validating the token.
+                # We return the status from the raised error,
+                # and return the error as a json response body
+                return abort(Response(json.dumps(error.error), error.status_code))
+
+            return f(*args, **kwargs)
+
+        return wrapped
+
+    return inner_decorator

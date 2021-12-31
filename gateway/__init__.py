@@ -3,9 +3,9 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
 
-#######################
-#### Configuration ####
-#######################
+#################
+# Configuration #
+#################
 
 # Create the instances of the Flask extensions (flask-sqlalchemy, flask-login, etc.) in
 # the global scope, but without any arguments passed in.  These instances are not attached
@@ -13,9 +13,9 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-######################################
-#### Application Factory Function ####
-######################################
+################################
+# Application Factory Function #
+################################
 
 def create_app(config_filename=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -25,9 +25,9 @@ def create_app(config_filename=None):
     return app
 
 
-##########################
-#### Helper Functions ####
-##########################
+####################
+# Helper Functions #
+####################
 
 def initialize_extensions(app):
     # Since the application instance is now created, pass it to each Flask
