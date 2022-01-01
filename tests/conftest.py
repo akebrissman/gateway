@@ -18,9 +18,7 @@ def read_file(file_name: str) -> str:
     return data
 
 
-@pytest.fixture(scope='module')
-def test_client():
-    app = create_app('flask_test.cfg')
+def get_access_token():
     claims = {'iss': 'https://abrissman.auth.com/',
               'sub': '123456789',
               'aud': 'my-gateway-api',
@@ -38,7 +36,13 @@ def test_client():
         key = read_file("tests/jwtRS256.key")
 
     token = jwt.encode(claims=claims, key=key, algorithm='RS256', headers=headers)
-    app.bearer = f"Bearer {token}"
+    return f"Bearer {token}"
+
+
+@pytest.fixture(scope='module')
+def test_client():
+    app = create_app('flask_test.cfg')
+    app.bearer = get_access_token()
 
     with app.app_context():
         db.create_all()
@@ -50,6 +54,7 @@ def test_client():
 @pytest.fixture(scope='module')
 def test_client_no_db():
     app = create_app('flask_test.cfg')
+    app.bearer = get_access_token()
 
     with app.app_context():
         #db.create_all()
@@ -85,9 +90,3 @@ def init_database():
     yield db  # this is where the testing happens!
 
     db.drop_all()
-
-
-@pytest.fixture()
-def new_fb():
-    fb = FirebaseModel('123456789012345', 'guid')
-    return fb

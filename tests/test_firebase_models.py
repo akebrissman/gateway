@@ -1,59 +1,60 @@
 from gateway.models.firebase import FirebaseModel
 
-def test_new_user(new_fb):
-    fb = new_fb
-    assert fb.imsi == '123456789012345'
-    assert fb.token == 'guid'
-    assert fb.__repr__() == f"FirebaseModel(imsi={fb.imsi}, token={fb.token})"
-    assert fb.__str__() == f"Imsi:{fb.imsi}, Token:{fb.token}"
-    assert str(fb) == f"Imsi:{fb.imsi}, Token:{fb.token}"
 
-    assert str(fb.json()) == f"{{'imsi': '{fb.imsi}', 'token': '{fb.token}'}}"
-    # should be this for valid json syntax.
-    # assert new_fb.json() == f"{{\"imsi\": \"{new_fb.imsi}\", \"token\": \"{new_fb.token}\"}}"
+def test_new_user():
+    obj = FirebaseModel('123456789012345', 'guid')
+    assert obj.imsi == '123456789012345'
+    assert obj.token == 'guid'
+    assert obj.__repr__() == f"FirebaseModel(imsi={obj.imsi}, token={obj.token})"
+    assert obj.__str__() == f"Imsi:{obj.imsi}, Token:{obj.token}"
+    assert str(obj) == f"Imsi:{obj.imsi}, Token:{obj.token}"
+    assert obj.json() == {'imsi': '123456789012345', 'token': 'guid'}
 
 
-def test_save_fb(app):
+def test_save_obj(app):
     imsi = '123456789012345'
     token = 'ABC123'
-    fb1 = FirebaseModel(imsi, token)
-    fb1.save_to_db()
+    obj1 = FirebaseModel(imsi, token)
+    obj1.save_to_db()
 
-    fb2 = FirebaseModel.find_by_imsi(imsi)
+    obj2 = FirebaseModel.find_by_imsi(imsi)
 
-    assert fb1.imsi == fb2.imsi
-    assert fb1.token == fb2.token
+    assert obj1.imsi == obj2.imsi
+    assert obj1.token == obj2.token
 
     for x in FirebaseModel.find_all():
         assert x.imsi == imsi
 
-def test_save_fb_mulitple_times(app):
+
+def test_save_obj_mulitple_times(app):
     imsi = '123456789012345'
     token = 'ABC123'
-    fb1 = FirebaseModel(imsi, token)
-    fb1.save_to_db()
-    fb1.save_to_db()
-    fb1.save_to_db()
+    obj1 = FirebaseModel(imsi, token)
+    obj1.save_to_db()
+    obj1.save_to_db()
+    obj1.save_to_db()
     assert len(FirebaseModel.find_all()) == 1
 
-def test_delete_fb(app):
+
+def test_delete_obj(app):
     imsi = '123456789012345'
     token = 'ABC123'
-    fb1 = FirebaseModel(imsi, token)
-    fb1.save_to_db()
+    obj1 = FirebaseModel(imsi, token)
+    obj1.save_to_db()
     assert len(FirebaseModel.find_all()) == 1
 
-    fb1.delete_from_db()
+    obj1.delete_from_db()
     assert len(FirebaseModel.find_all()) == 0
 
-def test_find_fb(app):
+
+def test_find_obj(app):
     imsi = '123456789012345'
     token = 'ABC123'
-    fb1 = FirebaseModel(imsi, token)
-    fb1.save_to_db()
+    obj1 = FirebaseModel(imsi, token)
+    obj1.save_to_db()
 
-    fb2 = FirebaseModel.find_by_imsi("")
-    assert fb2 is None
+    obj2 = FirebaseModel.find_by_imsi("")
+    assert obj2 is None
 
-    fb2 = FirebaseModel.find_by_imsi(imsi)
-    assert fb2 is not None
+    obj2 = FirebaseModel.find_by_imsi(imsi)
+    assert obj2 is not None
