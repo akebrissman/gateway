@@ -32,5 +32,5 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Quality Assurance'
     ],
-    python_requires='>=3.6'
+    python_requires='>=3.8'
 )

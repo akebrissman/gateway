@@ -62,7 +62,7 @@ class Firebase(Resource):
         fb = FirebaseModel.find_by_imsi(imsi)
 
         if fb:
-            return {'message': f"Firebase item for IMSI '{imsi}' already exists."}, 400
+            return {'message': f"Firebase item for IMSI '{imsi}' already exists."}, 409
 
         fb = FirebaseModel(**data)
         try:

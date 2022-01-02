@@ -4,7 +4,7 @@ import json
 from dotenv import load_dotenv, find_dotenv
 from functools import wraps
 from urllib.request import urlopen
-from flask import request, _request_ctx_stack, abort, Response
+from flask import request, _request_ctx_stack, abort, Response, jsonify
 from jose import jwt
 
 ENV_FILE = find_dotenv()
@@ -73,8 +73,8 @@ def validate_token(token: str, scope: str = None):
     if not public_key:
         # Let's find our publicly available public keys,
         # which we'll use to validate the token's signature
-        jsonurl = urlopen("https://" + config["DOMAIN"] + "/.well-known/jwks.json")
-        jwks = json.loads(jsonurl.read())
+        url = urlopen("https://" + config["DOMAIN"] + "/.well-known/jwks.json")
+        jwks = json.loads(url.read())
     else:
         if public_key[:1] == "{":
             rsa_key = json.loads(public_key)
@@ -110,15 +110,6 @@ def validate_token(token: str, scope: str = None):
                 issuer="https://" + config["DOMAIN"] + "/",
             )
 
-            # Verify that the requested scope exist in the token
-            token_scope = payload.get('scope').split(' ')
-            if scope and scope not in token_scope:
-                payload = {
-                    "code": "missing_scope",
-                    "description": "No matching scope found in token"
-                }
-                raise AuthError(payload, 401)
-
             _request_ctx_stack.top.current_user = payload
 
         # The token is not valid if the expiry date is in the past
@@ -150,7 +141,16 @@ def validate_token(token: str, scope: str = None):
         except Exception:
             payload = {
                 "code": "invalid_header",
-                "description": "Unable to parse authentication token.",
+                "description": "Unable to parse authentication token",
+            }
+            raise AuthError(payload, 401)
+
+        # Verify that the requested scope exist in the token
+        token_scope = payload.get('scope').split(' ')
+        if scope and scope not in token_scope:
+            payload = {
+                "code": "missing_scope",
+                "description": "No matching scope found in token"
             }
             raise AuthError(payload, 401)
 
@@ -159,9 +159,15 @@ def validate_token(token: str, scope: str = None):
         # in the list of available public keys for our Auth0 tenant.
         payload = {
             "code": "invalid_header",
-            "description": "No valid public key found to validate signature.",
+            "description": "No valid public key found to validate signature",
         }
         raise AuthError(payload, 401)
+
+
+def json_response(status_code, data=None):
+    response = jsonify(data or {'error': 'There was an error'})
+    response.status_code = status_code
+    return response
 
 
 def requires_auth(f):
@@ -180,7 +186,8 @@ def requires_auth(f):
             # or validating the token.
             # We return the status from the raised error,
             # and return the error as a json response body
-            return abort(Response(json.dumps(error.error), error.status_code))
+            # return abort(Response(json.dumps(error.error), error.status_code))
+            return abort(json_response(error.status_code, error.error))
 
         return f(*args, **kwargs)
 
@@ -201,7 +208,8 @@ def requires_auth_with_scope(scope: str = None):
                 # or validating the token.
                 # We return the status from the raised error,
                 # and return the error as a json response body
-                return abort(Response(json.dumps(error.error), error.status_code))
+                # return abort(Response(json.dumps(error.error), error.status_code))
+                return abort(json_response(error.status_code, error.error))
 
             return f(*args, **kwargs)
 

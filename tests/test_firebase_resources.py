@@ -42,7 +42,7 @@ def test_post_same_fb(test_client):
     headers = {'content-type': 'application/json'}
     body = '{ "token": "Token 30", "imsi": "123456789012346" }'
     response = test_client.post(api, headers=headers, data=body)
-    assert response.status_code == 400
+    assert response.status_code == 409
 
 
 def test_get_all_fbs(test_client):

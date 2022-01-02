@@ -4,7 +4,7 @@ from flask_restful import Resource, reqparse
 from sqlalchemy import exc
 
 from ..models.device import DeviceModel
-from utils.decorators import requires_auth
+from ..utils.decorators import requires_auth
 
 
 class DeviceId(Resource):
@@ -68,7 +68,7 @@ class Device(Resource):
         device_model = DeviceModel.find_by_name(device_name)
 
         if device_model:
-            return {'message': f"Device '{device_model}' already exists."}, 400
+            return {'message': f"Device '{device_model}' already exists."}, 409
 
         device_model = DeviceModel(**data)
         try:

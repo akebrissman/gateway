@@ -4,7 +4,7 @@ from flask_restful import Resource, reqparse
 from sqlalchemy import exc
 
 from ..models.group import GroupModel
-from utils.decorators import requires_auth_with_scope
+from ..utils.decorators import requires_auth_with_scope
 
 
 class GroupId(Resource):
@@ -68,7 +68,7 @@ class Group(Resource):
         group_model = GroupModel.find_by_name(group_name)
 
         if group_model:
-            return {'message': f"Group '{group_model}' already exists."}, 400
+            return {'message': f"Group '{group_model}' already exists."}, 409
 
         group_model = GroupModel(**data)
         try:
