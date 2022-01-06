@@ -4,7 +4,7 @@ import json
 from dotenv import load_dotenv, find_dotenv
 from functools import wraps
 from urllib.request import urlopen
-from flask import request, _request_ctx_stack, abort, Response, jsonify
+from flask import request, _request_ctx_stack, abort, jsonify
 from jose import jwt
 
 ENV_FILE = find_dotenv()

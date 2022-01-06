@@ -16,7 +16,6 @@ RUN mkdir -p /app/instance
 COPY app.py /app
 COPY README.md /app
 COPY gateway /app/gateway
-COPY utils /app/utils
 COPY instance /app/instance
 # COPY migrations /app/migrations
 
