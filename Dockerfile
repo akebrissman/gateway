@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.8-slim
 MAINTAINER Åke Brissman <ake.brissman@gmail.com>
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
