@@ -1,6 +1,6 @@
 # Project Title
 
-Gateway for Firebase notifications
+Gateway-serivce, a referense project for REST APIs
 
 
 ## Getting Started
