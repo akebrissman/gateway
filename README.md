@@ -1,6 +1,6 @@
 # Project Title
 
-Gateway-serivce, a referense project for REST APIs
+Gateway-service, a reference project for REST APIs
 
 
 ## Getting Started
@@ -20,11 +20,16 @@ Run
 ```
 
 
+### Project information
+- If the Public key (used for token validation) becomes invalid, you must replace it by assigning a new value to the 
+"AUTH_PUBLIC_KEY" or temporary removing it. When removed, it will be fetched from the authentication domain at every 
+validation attempt 
+-  
+ 
 
 
-Contributing
-------------
 
+### Contributing
 Really? Very welcome. Do the usual fork-and-submit-PR thingy.
 
 Running the tests:

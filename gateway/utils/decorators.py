@@ -13,13 +13,14 @@ if ENV_FILE:
 
 config = {
     "DOMAIN": os.getenv("AUTH_DOMAIN", "your.domain.com"),
+    "ISSUER": "https://" + os.getenv("AUTH_DOMAIN") + "/",
     "AUDIENCE": os.getenv("AUTH_API_AUDIENCE", "your.audience.com"),
     "ALGORITHMS": os.getenv("AUTH_ALGORITHMS", "RS256"),
 }
 
 
 class AuthError(Exception):
-    def __init__(self, error, status_code):
+    def __init__(self, error: dict, status_code: int):
         self.error = error
         self.status_code = status_code
 
@@ -71,7 +72,7 @@ def validate_token(token: str, scope: str = None):
     rsa_key = None
     public_key = os.getenv("AUTH_PUBLIC_KEY")
     if not public_key:
-        # Let's find our publicly available public keys,
+        # Let's fetch the public key, from the authentication domain,
         # which we'll use to validate the token's signature
         url = urlopen("https://" + config["DOMAIN"] + "/.well-known/jwks.json")
         jwks = json.loads(url.read())
@@ -107,7 +108,7 @@ def validate_token(token: str, scope: str = None):
                 rsa_key,
                 algorithms=config["ALGORITHMS"],
                 audience=config["AUDIENCE"],
-                issuer="https://" + config["DOMAIN"] + "/",
+                issuer=config["ISSUER"],
             )
 
             _request_ctx_stack.top.current_user = payload
@@ -182,12 +183,14 @@ def requires_auth(f):
             # Once we have the token, we can validate it
             validate_token(token)
         except AuthError as error:
-            # Abort the request if something went wrong fetching the token
-            # or validating the token.
-            # We return the status from the raised error,
-            # and return the error as a json response body
-            # return abort(Response(json.dumps(error.error), error.status_code))
-            return abort(json_response(error.status_code, error.error))
+            # Abort the request if something went wrong fetching the token or validating the token.
+            # We return the status from the raised error, and return the error as a json response body
+            # When running the tests a more detailed error is returned that we don't want to show in production
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                return abort(json_response(error.status_code, error.error))
+            else:
+                print(error.status_code, error.error)
+                return abort(json_response(error.status_code, {'description': 'Authentication Error'}))
 
         return f(*args, **kwargs)
 
@@ -204,12 +207,14 @@ def requires_auth_with_scope(scope: str = None):
                 # Once we have the token, we can validate it
                 validate_token(token, scope)
             except AuthError as error:
-                # Abort the request if something went wrong fetching the token
-                # or validating the token.
-                # We return the status from the raised error,
-                # and return the error as a json response body
-                # return abort(Response(json.dumps(error.error), error.status_code))
-                return abort(json_response(error.status_code, error.error))
+                # Abort the request if something went wrong fetching the token or validating the token.
+                # We return the status from the raised error, and return the error as a json response body
+                # When running the tests a more detailed error is returned that we don't want to show in production
+                if "PYTEST_CURRENT_TEST" in os.environ:
+                    return abort(json_response(error.status_code, error.error))
+                else:
+                    print(error.status_code, error.error)
+                    return abort(json_response(error.status_code, {'description': 'Authentication Error'}))
 
             return f(*args, **kwargs)
 
