@@ -51,12 +51,14 @@ def test_get_all_group(test_client_no_db):
     response = test_client_no_db.get(api, headers=headers)
     assert response.status_code == 500
 
+
 def test_put_group_db_error(test_client_no_db):
     api = 'api/group/123456789012345'
     headers = {'content-type': 'application/json', 'Authorization': test_client_no_db.application.bearer}
     body = '{ "url": "URL 30", "name": "123456789012346" }'
     response = test_client_no_db.put(api, headers=headers, data=body)
     assert response.status_code == 500
+
 
 def test_post_group_db_error(test_client_no_db):
     api = 'api/group'
