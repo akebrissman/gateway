@@ -2,23 +2,12 @@ import os
 import json
 import datetime as dt
 
-from dotenv import load_dotenv, find_dotenv
 from functools import wraps
 from urllib.request import urlopen
 from flask import request, _request_ctx_stack, abort, jsonify
 from jose import jwt
 
-ENV_FILE = find_dotenv()
-if ENV_FILE:
-    load_dotenv(ENV_FILE)
-
-config = {
-    "DOMAIN": os.getenv("AUTH_DOMAIN", "your.domain.com"),
-    "ISSUER": "https://" + os.getenv("AUTH_DOMAIN") + "/",
-    "AUDIENCE": os.getenv("AUTH_API_AUDIENCE", "your.audience.com"),
-    "ALGORITHMS": os.getenv("AUTH_ALGORITHMS", "RS256"),
-}
-
+from gateway import settings
 
 g_cached_keys_per_kid = {}
 g_requests_per_minute = 5
@@ -30,20 +19,6 @@ class AuthError(Exception):
     def __init__(self, error: dict, status_code: int):
         self.error = error
         self.status_code = status_code
-
-
-def is_unittest() -> bool:
-    return "AUTH_PUBLIC_KEY" in os.environ
-
-
-def override_env() -> str:
-    rsa_key = os.getenv("AUTH_PUBLIC_KEY")
-    config["DOMAIN"] = os.getenv("AUTH_DOMAIN")
-    config["ISSUER"] = "https://" + os.getenv("AUTH_DOMAIN") + "/"
-    config["AUDIENCE"] = os.getenv("AUTH_API_AUDIENCE")
-    config["ALGORITHMS"] = os.getenv("AUTH_ALGORITHMS", "RS256")
-
-    return rsa_key
 
 
 def update_rate_limit():
@@ -137,13 +112,13 @@ def validate_token(token: str, scope: str = None):
     rsa_key = None
     token_kid = unverified_token_header["kid"]
     if token_kid not in g_cached_keys_per_kid and is_within_rate_limit():
-        if is_unittest():
-            rsa_key = override_env()
+        if settings.auth_public_key:
+            rsa_key = settings.auth_public_key
             g_cached_keys_per_kid[token_kid] = rsa_key
         else:
             # Let's fetch the public key, from the authentication domain,
             # which we'll use to validate the token's signature
-            url = urlopen("https://" + config["DOMAIN"] + "/.well-known/jwks.json")
+            url = urlopen("https://" + settings.auth_domain + "/.well-known/jwks.json")
             jwks = json.loads(url.read())
 
             # Check if we have a key with the key ID specified
@@ -165,9 +140,9 @@ def validate_token(token: str, scope: str = None):
             payload = jwt.decode(
                 token,
                 rsa_key,
-                algorithms=config["ALGORITHMS"],
-                audience=config["AUDIENCE"],
-                issuer=config["ISSUER"],
+                algorithms=settings.auth_algorithms,
+                audience=settings.auth_api_audience,
+                issuer=settings.auth_issuer,
             )
 
             _request_ctx_stack.top.current_user = payload

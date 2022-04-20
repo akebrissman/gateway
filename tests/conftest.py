@@ -5,6 +5,7 @@ from jose import jwt
 
 from gateway import create_app
 from gateway import db
+from gateway import settings
 
 
 def read_file(file_name: str) -> str:
@@ -17,14 +18,12 @@ def read_file(file_name: str) -> str:
     return data
 
 
-def set_test_environment():
-    if os.getcwd().find('tests') >= 0:
-        key = read_file("jwtRS256.key.pub")
-    else:
-        key = read_file("tests/jwtRS256.key.pub")
-    os.environ["AUTH_PUBLIC_KEY"] = key
-    os.environ["AUTH_DOMAIN"] = 'abrissman.auth.com'
-    os.environ["AUTH_API_AUDIENCE"] = 'my-gateway-api'
+def set_public_key_in_settings():
+    settings.auth_public_key = read_file(get_file_path("jwtRS256.key.pub"))
+
+
+def set_invalid_key_in_settings():
+    settings.auth_public_key ="ABC"
 
 
 def get_file_path(file_name: str) -> str:
@@ -37,7 +36,7 @@ def get_file_path(file_name: str) -> str:
 
 
 def get_access_token():
-    set_test_environment()
+    set_public_key_in_settings()
     claims = {'iss': 'https://abrissman.auth.com/',
               'sub': '123456789',
               'aud': 'my-gateway-api',
@@ -76,7 +75,8 @@ def get_missing_kid_in_token():
     return f"Bearer {token}"
 
 
-def get_alternative_kid_in_token():
+def get_alternative_kid_in_token_and_invalid_key_in_settings():
+    set_invalid_key_in_settings()
     claims = {'iss': 'https://abrissman.auth.com/',
               'sub': '123456789',
               'aud': 'my-gateway-api',
@@ -168,7 +168,7 @@ def test_client_missing_kid_in_token():
 @pytest.fixture(scope='module')
 def test_client_alternative_kid_in_token():
     app = create_app('flask_test.cfg')
-    app.bearer = get_alternative_kid_in_token()
+    app.bearer = get_alternative_kid_in_token_and_invalid_key_in_settings()
 
     with app.app_context():
         db.create_all()

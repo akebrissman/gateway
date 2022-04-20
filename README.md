@@ -29,6 +29,7 @@ Really? Very welcome. Do the usual fork-and-submit-PR thingy.
 
 Running the tests:
 
+    cp .env.test .env 
     python setup.py test
  
 Running the test with coverage

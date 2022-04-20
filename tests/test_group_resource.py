@@ -158,14 +158,10 @@ def test_get_all_group_invalid_bearer_three_parts(test_client):
 
 
 def test_get_all_group_invalid_pub_key_in_token(test_client_alternative_kid_in_token):
-    import os
-    pub_key = os.getenv("AUTH_PUBLIC_KEY")
-    os.environ["AUTH_PUBLIC_KEY"] = "ABC"
     api = '/api/group'
     headers = {'content-type': 'application/json',
                'Authorization': test_client_alternative_kid_in_token.application.bearer}
     response = test_client_alternative_kid_in_token.get(api, headers=headers)
-    os.environ["AUTH_PUBLIC_KEY"] = pub_key
     assert response.status_code == 401
     assert response.is_json is True
     assert response.json['description'] == "Unable to parse authentication token"
