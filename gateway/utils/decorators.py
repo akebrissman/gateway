@@ -1,28 +1,47 @@
 import os
 import json
+import datetime as dt
 
-from dotenv import load_dotenv, find_dotenv
 from functools import wraps
 from urllib.request import urlopen
 from flask import request, _request_ctx_stack, abort, jsonify
 from jose import jwt
 
-ENV_FILE = find_dotenv()
-if ENV_FILE:
-    load_dotenv(ENV_FILE)
+from gateway import settings
 
-config = {
-    "DOMAIN": os.getenv("AUTH_DOMAIN", "your.domain.com"),
-    "ISSUER": "https://" + os.getenv("AUTH_DOMAIN") + "/",
-    "AUDIENCE": os.getenv("AUTH_API_AUDIENCE", "your.audience.com"),
-    "ALGORITHMS": os.getenv("AUTH_ALGORITHMS", "RS256"),
-}
+g_cached_keys_per_kid = {}
+g_requests_per_minute = 5
+g_requests_count = 0
+g_current_rate_time = ""
 
 
 class AuthError(Exception):
     def __init__(self, error: dict, status_code: int):
         self.error = error
         self.status_code = status_code
+
+
+def update_rate_limit():
+    """Increase the counter if it is within the same minute else set it to 1"""
+    global g_current_rate_time
+    global g_requests_count
+    time_str = dt.datetime.now().isoformat(timespec="minutes")
+    if time_str != g_current_rate_time:
+        g_current_rate_time = time_str
+        g_requests_count = 1
+    else:
+        g_requests_count += 1
+
+
+def is_within_rate_limit() -> bool:
+    """
+    Return True if this request is in another minute then the previous
+    or if there are less then g_jwks_requests_per_minute for the current minute
+    """
+
+    time_str = dt.datetime.now().isoformat(timespec="minutes")
+    return (time_str != g_current_rate_time) or \
+           (time_str == g_current_rate_time and g_requests_count < g_requests_per_minute)
 
 
 def get_token() -> str:
@@ -67,48 +86,63 @@ def get_token() -> str:
 
 
 def validate_token(token: str, scope: str = None):
-    """Validates an Access Token"""
+    """Validates an Access Token
 
-    rsa_key = None
-    public_key = os.getenv("AUTH_PUBLIC_KEY")
-    if not public_key:
-        # Let's fetch the public key, from the authentication domain,
-        # which we'll use to validate the token's signature
-        url = urlopen("https://" + config["DOMAIN"] + "/.well-known/jwks.json")
-        jwks = json.loads(url.read())
-    else:
-        if public_key[:1] == "{":
-            rsa_key = json.loads(public_key)
-        else:
-            rsa_key = public_key
+    Caching
+    By default, signing key verification results are cached in order to prevent excessive HTTP requests to the JWKS endpoint. 
+    If a signing key matching the kid is found, this will be cached and the next time this kid is requested the signing key will be served from the cache. 
+    
+    Rate Limiting
+    Even if caching is enabled the function will call the JWKS endpoint if the kid is not available in the cache, because a key rotation could have taken place.
+    To prevent attackers to send many random kids there is a rate limiting
+    This limit the number of calls that are made to the JWKS endpoint per minute (because it would be highly unlikely that signing keys are rotated multiple times per minute).
+    """
 
     # We will parse the token and get the header for later use
-    unverified_header = jwt.get_unverified_header(token)
+    unverified_token_header = jwt.get_unverified_header(token)
 
     # Check if the token has a key ID
-    if "kid" not in unverified_header:
+    if "kid" not in unverified_token_header:
         payload = {
             "code": "missing_kid",
             "description": "No kid found in token"
         }
         raise AuthError(payload, 401)
 
-    try:
-        if not rsa_key:
+    rsa_key = None
+    token_kid = unverified_token_header["kid"]
+    if token_kid not in g_cached_keys_per_kid and is_within_rate_limit():
+        if settings.auth_public_key:
+            rsa_key = settings.auth_public_key
+            g_cached_keys_per_kid[token_kid] = rsa_key
+        else:
+            # Let's fetch the public key, from the authentication domain,
+            # which we'll use to validate the token's signature
+            url = urlopen("https://" + settings.auth_domain + "/.well-known/jwks.json")
+            jwks = json.loads(url.read())
+
             # Check if we have a key with the key ID specified
             # from the header available in our list of public keys
-            rsa_key = next(
-                key for key in jwks["keys"]
-                if key["kid"] == unverified_header["kid"]
-            )
+            for key in jwks["keys"]:
+                if key["kid"] == token_kid:
+                    rsa_key = key
+                    g_cached_keys_per_kid[token_kid] = key
+                    break
 
+        update_rate_limit()
+        print("Key fetched from auth domain")
+    else:
+        rsa_key = g_cached_keys_per_kid.get(token_kid)
+        print("Key found in cache")
+
+    try:
         try:
             payload = jwt.decode(
                 token,
                 rsa_key,
-                algorithms=config["ALGORITHMS"],
-                audience=config["AUDIENCE"],
-                issuer=config["ISSUER"],
+                algorithms=settings.auth_algorithms,
+                audience=settings.auth_api_audience,
+                issuer=settings.auth_issuer,
             )
 
             _request_ctx_stack.top.current_user = payload
@@ -148,7 +182,7 @@ def validate_token(token: str, scope: str = None):
 
         # Verify that the requested scope exist in the token
         token_scope = payload.get('scope').split(' ')
-        if scope and scope not in token_scope:
+        if scope is not None and scope not in token_scope:
             payload = {
                 "code": "missing_scope",
                 "description": "No matching scope found in token"

@@ -21,12 +21,7 @@ Run
 
 
 ### Project information
-- If the Public key (used for token validation) becomes invalid, you must replace it by assigning a new value to the 
-"AUTH_PUBLIC_KEY" or temporary removing it. When removed, it will be fetched from the authentication domain at every 
-validation attempt 
--  
- 
-
+- 
 
 
 ### Contributing
@@ -34,6 +29,7 @@ Really? Very welcome. Do the usual fork-and-submit-PR thingy.
 
 Running the tests:
 
+    cp .env.test .env 
     python setup.py test
  
 Running the test with coverage

@@ -157,14 +157,11 @@ def test_get_all_group_invalid_bearer_three_parts(test_client):
     assert response.json['description'] == "Authorization header must be a valid Bearer token"
 
 
-def test_get_all_group_invalid_pub_key_in_token(test_client):
-    import os
-    pub_key = os.getenv("AUTH_PUBLIC_KEY")
-    os.environ["AUTH_PUBLIC_KEY"] = "ABC"
+def test_get_all_group_invalid_pub_key_in_token(test_client_alternative_kid_in_token):
     api = '/api/group'
-    headers = {'content-type': 'application/json', 'Authorization': test_client.application.bearer}
-    response = test_client.get(api, headers=headers)
-    os.environ["AUTH_PUBLIC_KEY"] = pub_key
+    headers = {'content-type': 'application/json',
+               'Authorization': test_client_alternative_kid_in_token.application.bearer}
+    response = test_client_alternative_kid_in_token.get(api, headers=headers)
     assert response.status_code == 401
     assert response.is_json is True
     assert response.json['description'] == "Unable to parse authentication token"
@@ -199,7 +196,8 @@ def test_get_all_group_invalid_aud_in_token(test_client_invalid_aud_in_token):
 
 def test_get_all_group_invalid_signature_in_token(test_client_invalid_signature_in_token):
     api = '/api/group'
-    headers = {'content-type': 'application/json', 'Authorization': test_client_invalid_signature_in_token.application.bearer}
+    headers = {'content-type': 'application/json',
+               'Authorization': test_client_invalid_signature_in_token.application.bearer}
     response = test_client_invalid_signature_in_token.get(api, headers=headers)
     assert response.status_code == 401
     assert response.is_json is True

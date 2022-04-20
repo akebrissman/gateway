@@ -1,6 +1,21 @@
+import os
+
 from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+from typing import Optional
+from pydantic import BaseSettings, Field, HttpUrl
+
+
+class Settings(BaseSettings):
+    auth_domain: str
+    auth_issuer: HttpUrl
+    auth_api_audience: str
+    auth_algorithms: str
+    auth_public_key: Optional[str]
+
+
+env_file_path = "../.env" if os.getcwd().find('tests') >= 0 else ".env"
 
 
 #################
@@ -11,7 +26,7 @@ from flask_sqlalchemy import SQLAlchemy
 # the global scope, but without any arguments passed in.  These instances are not attached
 # to the application at this point.
 db = SQLAlchemy()
-
+settings: Settings = Settings(_env_file=env_file_path, _env_file_encoding='utf-8')
 
 ################################
 # Application Factory Function #
