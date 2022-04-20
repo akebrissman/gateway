@@ -129,6 +129,15 @@ def validate_token(token: str, scope: str = None):
                     g_cached_keys_per_kid[token_kid] = key
                     break
 
+            if rsa_key is None:
+                # We did not find the key with the ID specified in the token's header
+                # in the list of available public keys for our Auth0 tenant.
+                payload = {
+                    "code": "invalid_header",
+                    "description": "No valid public key found to validate signature",
+                }
+                raise AuthError(payload, 401)
+
         update_rate_limit()
         print("Key fetched from auth domain")
     else:
@@ -136,65 +145,55 @@ def validate_token(token: str, scope: str = None):
         print("Key found in cache")
 
     try:
-        try:
-            payload = jwt.decode(
-                token,
-                rsa_key,
-                algorithms=settings.auth_algorithms,
-                audience=settings.auth_api_audience,
-                issuer=settings.auth_issuer,
-            )
+        payload = jwt.decode(
+            token,
+            rsa_key,
+            algorithms=settings.auth_algorithms,
+            audience=settings.auth_api_audience,
+            issuer=settings.auth_issuer,
+        )
 
-            _request_ctx_stack.top.current_user = payload
+        _request_ctx_stack.top.current_user = payload
 
-        # The token is not valid if the expiry date is in the past
-        except jwt.ExpiredSignatureError:
-            raise AuthError(
-                {"code": "token_expired", "description": "Token is expired"},
-                401
-            )
+    # The token is not valid if the expiry date is in the past
+    except jwt.ExpiredSignatureError:
+        raise AuthError(
+            {"code": "token_expired", "description": "Token is expired"},
+            401
+        )
 
-        # The token should be issued by our Auth0 tenant,
-        # and to be used with our API (Audience)
-        except jwt.JWTClaimsError:
-            payload = {
-                "code": "invalid_claims",
-                "description":
-                    "Incorrect claims, please check the audience and issuer",
-            }
-            raise AuthError(payload, 401)
+    # The token should be issued by our Auth0 tenant,
+    # and to be used with our API (Audience)
+    except jwt.JWTClaimsError:
+        payload = {
+            "code": "invalid_claims",
+            "description":
+                "Incorrect claims, please check the audience and issuer",
+        }
+        raise AuthError(payload, 401)
 
-        # The token's signature is invalid
-        except jwt.JWTError:
-            payload = {
-                "code": "invalid_signature",
-                "description": "The signature is not valid",
-            }
-            raise AuthError(payload, 401)
+    # The token's signature is invalid
+    except jwt.JWTError:
+        payload = {
+            "code": "invalid_signature",
+            "description": "The signature is not valid",
+        }
+        raise AuthError(payload, 401)
 
-        # Something went wrong parsing the JWT
-        except Exception:
-            payload = {
-                "code": "invalid_header",
-                "description": "Unable to parse authentication token",
-            }
-            raise AuthError(payload, 401)
-
-        # Verify that the requested scope exist in the token
-        token_scope = payload.get('scope').split(' ')
-        if scope is not None and scope not in token_scope:
-            payload = {
-                "code": "missing_scope",
-                "description": "No matching scope found in token"
-            }
-            raise AuthError(payload, 401)
-
-    except StopIteration:
-        # We did not find the key with the ID specified in the token's header
-        # in the list of available public keys for our Auth0 tenant.
+    # Something went wrong parsing the JWT
+    except Exception:
         payload = {
             "code": "invalid_header",
-            "description": "No valid public key found to validate signature",
+            "description": "Unable to parse authentication token",
+        }
+        raise AuthError(payload, 401)
+
+    # Verify that the requested scope exist in the token
+    token_scope = payload.get('scope').split(' ')
+    if scope is not None and scope not in token_scope:
+        payload = {
+            "code": "missing_scope",
+            "description": "No matching scope found in token"
         }
         raise AuthError(payload, 401)
 
