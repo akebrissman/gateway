@@ -146,3 +146,12 @@ def test_get_all_devices_invalid_bearer_one_part(test_client):
     assert response.status_code == 401
     assert response.is_json is True
     assert response.json['description'] == "Token not found"
+
+
+def test_get_all_devices_invalid_bearer_one_part(test_client):
+    api = '/api/device'
+    headers = {'content-type': 'application/json', 'Authorization': 'Bearer {}'}
+    response = test_client.get(api, headers=headers)
+    assert response.status_code == 401
+    assert response.is_json is True
+    assert response.json['description'] == "Invalid token"

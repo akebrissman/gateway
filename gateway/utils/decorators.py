@@ -86,7 +86,7 @@ def get_token() -> str:
 
 
 def validate_token(token: str, scope: str = None):
-    """Validates an Access Token
+    """Validate Access Token
 
     Caching
     By default, signing key verification results are cached in order to prevent excessive HTTP requests to the JWKS endpoint. 
@@ -99,7 +99,12 @@ def validate_token(token: str, scope: str = None):
     """
 
     # We will parse the token and get the header for later use
-    unverified_token_header = jwt.get_unverified_header(token)
+    try:
+        unverified_token_header = jwt.get_unverified_header(token)
+    except jwt.JWTError:
+        raise AuthError(
+            {"code": "token_invalid", "description": "Invalid token"},
+            401)
 
     # Check if the token has a key ID
     if "kid" not in unverified_token_header:
