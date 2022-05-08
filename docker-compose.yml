@@ -8,6 +8,7 @@ services:
     image: abrissman/gateway-service:local-build
     command: python /app/app.py
     env_file: .env
+    restart: unless-stopped
     ports:
       - "5010:5010"
     volumes:
