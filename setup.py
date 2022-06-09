@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gateway',
-    version='0.2',
+    version='1.0',
     packages=['gateway'],
     url='https://github.com/akebrissman/gateway/',
     license='MIT',
@@ -15,10 +15,14 @@ setup(
     install_requires=[
         'Flask',
         'Flask-RESTful',
-        'Flask-SQLAlchemy'
+        'Flask-SQLAlchemy',
+        'pydantic',
+        'python-dotenv',
+        'python-jose'
     ],
     tests_require=[
-        'pytest'
+         'pytest',
+         'coverage'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
