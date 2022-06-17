@@ -8,8 +8,7 @@ DOCKER_PASSWORD=$3
 
 BUILD_VERSION=${BUILD:-$(git rev-parse --short HEAD)}
 IMAGE=abrissman/gateway-service
-# DOCKER_TAG=BUILD_VERSION
-DOCKER_TAG=local-build
+DOCKER_TAG=$BUILD_VERSION
 
 echo "Log in to Docker ($DOCKER_USER)"
 docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
