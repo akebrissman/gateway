@@ -7,5 +7,4 @@
 
 # Temporary files and directories
 /build/
-/data/
 *.db

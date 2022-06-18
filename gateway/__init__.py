@@ -4,7 +4,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from typing import Optional
-from pydantic import BaseSettings, Field, HttpUrl
+from pydantic import BaseSettings, HttpUrl
 
 
 class Settings(BaseSettings):
@@ -27,6 +27,7 @@ env_file_path = "../.env" if os.getcwd().find('tests') >= 0 else ".env"
 # to the application at this point.
 db = SQLAlchemy()
 settings: Settings = Settings(_env_file=env_file_path, _env_file_encoding='utf-8')
+
 
 ################################
 # Application Factory Function #

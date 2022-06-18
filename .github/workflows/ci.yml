@@ -36,4 +36,12 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        cp ".env.test" ".env"
+        mkdir data
         pytest
+    - name: Build and Push Docker image
+      run: |
+        # BRANCH=$([ ${GITHUB_EVENT_NAME} = "pull_request" ] && echo ${GITHUB_HEAD_REF} || echo ${GITHUB_REF#refs/heads/})
+        # VERSION="$(python setup.py --version)-${BRANCH}-${{github.run_number}}"
+        VERSION=`deployment/build-version.sh`
+        deployment/build-and-push-docker.sh "${VERSION}" "${{secrets.DOCKERHUB_USERNAME}}" "${{secrets.DOCKERHUB_PASSWORD}}"

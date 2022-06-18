@@ -139,7 +139,7 @@ def test_get_all_devices_invalid_bearer_name(test_client):
     assert response.json['description'] == "Authorization header must be a Bearer token"
 
 
-def test_get_all_devices_invalid_bearer_one_part(test_client):
+def test_get_all_devices_missing_bearer_one_part(test_client):
     api = '/api/device'
     headers = {'content-type': 'application/json', 'Authorization': 'Bearer'}
     response = test_client.get(api, headers=headers)
