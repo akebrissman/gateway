@@ -13,7 +13,7 @@ def read_file(file_name: str) -> str:
         f = open(file_name, "r")
         data = f.read()
         f.close()
-    except Exception as e:
+    except FileNotFoundError:
         data = ""
     return data
 
@@ -23,7 +23,7 @@ def set_public_key_in_settings():
 
 
 def set_invalid_key_in_settings():
-    settings.auth_public_key ="ABC"
+    settings.auth_public_key = "ABC"
 
 
 def get_file_path(file_name: str) -> str:

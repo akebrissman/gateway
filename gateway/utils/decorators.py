@@ -89,13 +89,16 @@ def validate_token(token: str, scope: str = None):
     """Validate Access Token
 
     Caching
-    By default, signing key verification results are cached in order to prevent excessive HTTP requests to the JWKS endpoint. 
-    If a signing key matching the kid is found, this will be cached and the next time this kid is requested the signing key will be served from the cache. 
-    
+    By default, signing key verification results are cached in order to prevent excessive HTTP requests to the JWKS endpoint.
+    If a signing key matching the kid is found, this will be cached and the next time this kid is requested the signing
+     key will be served from the cache.
+
     Rate Limiting
-    Even if caching is enabled the function will call the JWKS endpoint if the kid is not available in the cache, because a key rotation could have taken place.
+    Even if caching is enabled the function will call the JWKS endpoint if the kid is not available in the cache,
+     because a key rotation could have taken place.
     To prevent attackers to send many random kids there is a rate limiting
-    This limit the number of calls that are made to the JWKS endpoint per minute (because it would be highly unlikely that signing keys are rotated multiple times per minute).
+    This limit the number of calls that are made to the JWKS endpoint per minute
+    (because it would be highly unlikely that signing keys are rotated multiple times per minute).
     """
 
     # We will parse the token and get the header for later use
