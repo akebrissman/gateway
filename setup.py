@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='gateway',
-    version='1.0',
+    version='1.0.0',
     packages=['gateway'],
     url='https://github.com/akebrissman/gateway/',
     license='MIT',
