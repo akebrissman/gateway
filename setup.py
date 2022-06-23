@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='gateway',
-    version='0.2',
+    version='1.0.0',
     packages=['gateway'],
     url='https://github.com/akebrissman/gateway/',
     license='MIT',
@@ -15,10 +15,14 @@ setup(
     install_requires=[
         'Flask',
         'Flask-RESTful',
-        'Flask-SQLAlchemy'
+        'Flask-SQLAlchemy',
+        'pydantic',
+        'python-dotenv',
+        'python-jose'
     ],
     tests_require=[
-        'pytest'
+         'pytest',
+         'coverage'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -32,5 +36,5 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Quality Assurance'
     ],
-    python_requires='>=3.6'
+    python_requires='>=3.8'
 )
